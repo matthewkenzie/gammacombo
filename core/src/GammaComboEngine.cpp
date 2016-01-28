@@ -393,7 +393,7 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId)
 	bool filefound = false;
 	// try the file provided through --asimovfile
 	if ( arg->asimovfile.size()>cId && ! arg->asimovfile[cId].EqualTo("default") ) {
-		asimovfile = arg->loadParamsFile[cId];
+		asimovfile = arg->asimovfile[cId];
 		filefound = FileExists(asimovfile);
 	}
 	// requested file not found, try default
