@@ -428,7 +428,7 @@ void GammaComboEngine::loadAsimovPoint(Combiner* c, int cId)
 			exit(1);
 		}
 		cout << "  Setting point number: " << arg->asimov[cId] << endl;
-		pCache->setPoint(c,arg->asimov[cId]-1);
+		pCache->setPoint(c,arg->asimov[cId]-1,arg->throwToy);
 	}
 	setAsimovObservables(c);
 }

@@ -90,6 +90,7 @@ OptParser::OptParser():
 	scanrangeyMax = -102;
 	scanrangeyMin = -102;
 	smooth2d = false;
+  throwToy = false;
 	usage = false;
 	verbose = false;
 }
@@ -163,6 +164,7 @@ void OptParser::defineOptions()
 	availableOptions.push_back("scanrange");
 	availableOptions.push_back("scanrangey");
 	availableOptions.push_back("smooth2d");
+  availableOptions.push_back("throwToy");
 	availableOptions.push_back("title");
 	availableOptions.push_back("usage");
 	availableOptions.push_back("unoff");
@@ -415,6 +417,7 @@ void OptParser::parseArguments(int argc, char* argv[])
 	TCLAP::SwitchArg nosystArg("", "nosyst", "Sets all systematic errors to zero.", false);
 	TCLAP::SwitchArg printcorArg("", "printcor", "Print the correlation matrix of each solution found.", false);
 	TCLAP::SwitchArg smooth2dArg("", "smooth2d", "Smooth 2D p-value or cl histograms for nicer contour (particularly useful for 2D plugin)", false);
+  TCLAP::SwitchArg throwToyArg("", "throwToy", "Throw a toy instead of the asimov (must be used with --asimov). Is a bit of a hack for now", false);
 
 	// --------------- aruments that can be given multiple times
 	vector<string> vAction;
@@ -559,6 +562,7 @@ void OptParser::parseArguments(int argc, char* argv[])
 	if ( isIn<TString>(bookedOptions, "usage" ) ) cmd.add( usageArg );
 	if ( isIn<TString>(bookedOptions, "unoff" ) ) cmd.add( plotunoffArg );
 	if ( isIn<TString>(bookedOptions, "title" ) ) cmd.add( titleArg );
+  if ( isIn<TString>(bookedOptions, "throwToy" ) ) cmd.add( throwToyArg );
 	if ( isIn<TString>(bookedOptions, "sn2d" ) ) cmd.add(sn2dArg);
 	if ( isIn<TString>(bookedOptions, "sn" ) ) cmd.add(snArg);
 	if ( isIn<TString>(bookedOptions, "smooth2d" ) ) cmd.add( smooth2dArg );
@@ -684,6 +688,7 @@ void OptParser::parseArguments(int argc, char* argv[])
 	savenuisances1d   = snArg.getValue();
 	scanforce         = scanforceArg.getValue();
 	smooth2d          = smooth2dArg.getValue();
+  throwToy          = throwToyArg.getValue();
 	usage             = usageArg.getValue();
 	verbose           = verboseArg.getValue();
 

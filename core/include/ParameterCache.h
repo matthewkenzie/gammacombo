@@ -29,10 +29,12 @@ class ParameterCache {
 		void printFitResultToOutStream(ofstream &out, RooSlimFitResult *slimFitResult);
 		void printPoint();
 		int getNPoints();
-		void setPoint(Combiner* cmb, int i);
-		void setPoint(MethodAbsScan *scanner, int i);
+		void setPoint(Combiner* cmb, int i, bool isToy=false);
+		void setPoint(MethodAbsScan *scanner, int i, bool isToy=false);
 		std::vector<TString> getFixedNames(std::vector<Utils::FixPar> fixPar);
 		std::vector<std::map<TString,double> > startingValues;
+		std::vector<std::map<TString,double> > startingErrorLo;
+		std::vector<std::map<TString,double> > startingErrorHi;
 
 	private:
 

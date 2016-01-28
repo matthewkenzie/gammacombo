@@ -134,6 +134,8 @@ bool ParameterCache::loadPoints(TString fileName){
 
 	bool successfullyLoaded = false;
 	startingValues.clear();
+	startingErrorLo.clear();
+	startingErrorHi.clear();
 
 	ifstream infile(fileName.Data());
 	if (infile) { // file exists
@@ -147,13 +149,19 @@ bool ParameterCache::loadPoints(TString fileName){
 				else if ( boost::starts_with(line,"----") ) { // solution here
 					nSolutions++;
 					startingValues.push_back(map<TString,double>());
+					startingErrorLo.push_back(map<TString,double>());
+					startingErrorHi.push_back(map<TString,double>());
 				}
 				else {
 					vector<string> els;
 					boost::split(els,line,boost::is_any_of(" "),boost::token_compress_on);
 					TString name = els[0];
-					double val = boost::lexical_cast<double>(els[1]);
+					double val   = boost::lexical_cast<double>(els[1]);
+					double errLo = boost::lexical_cast<double>(els[2]);
+					double errHi = boost::lexical_cast<double>(els[3]);
 					startingValues[nSolutions-1].insert(make_pair(name,val));
+					startingErrorLo[nSolutions-1].insert(make_pair(name,errLo));
+					startingErrorHi[nSolutions-1].insert(make_pair(name,errHi));
 				}
 			}
 		}
@@ -174,7 +182,7 @@ void ParameterCache::printPoint(){
 	for (unsigned int i=0; i<startingValues.size(); i++){
 		cout << "SOLUTION " << i << endl;
 		for (map<TString,double>::iterator it = startingValues[i].begin(); it != startingValues[i].end(); it++){
-			cout << Form("%-25s",it->first.Data()) << " " << Form("%12.6f",it->second) << endl;
+			cout << Form("%-25s",it->first.Data()) << " " << Form("%12.6f",it->second) << " (+/-) " << Form("%12.6f", startingErrorHi[i][it->first]) << " / " << Form("%-12.6f", startingErrorLo[i][it->first]) << endl;
 		}
 	}
 }
@@ -191,11 +199,11 @@ vector<TString> ParameterCache::getFixedNames(vector<FixPar> fixPar){
 	return names;
 }
 
-void ParameterCache::setPoint(MethodAbsScan *scanner, int i) {
-	setPoint(scanner->getCombiner(), i);
+void ParameterCache::setPoint(MethodAbsScan *scanner, int i, bool isToy) {
+	setPoint(scanner->getCombiner(), i, isToy);
 }
 
-void ParameterCache::setPoint(Combiner *cmb, int i) {
+void ParameterCache::setPoint(Combiner *cmb, int i, bool isToy) {
 	if ( !m_parametersLoaded ){
 		cout << "ParameterCache::setPoint() : ERROR : Can't set starting "
 			"point as no starting values have been loaded" << endl;
@@ -214,13 +222,24 @@ void ParameterCache::setPoint(Combiner *cmb, int i) {
 	for (map<TString,double>::iterator it=startingValues[i].begin(); it!=startingValues[i].end(); it++){
 		TString name = it->first;
 		double val = it->second;
+    double errLo = startingErrorLo[i][name];
+    double errHi = startingErrorHi[i][name];
+    double errSym = ( TMath::Abs( errLo ) + TMath::Abs( errHi ) ) / 2.;
+
+    // if a toy is asked for then throw one
+    if ( isToy ) {
+      RooRandom::randomGenerator()->SetSeed(0);
+      val = RooRandom::randomGenerator()->Gaus( val, errSym );
+    }
+
 		if ( find(fixNames.begin(), fixNames.end(), name) != fixNames.end() ) {
 			if (m_arg->debug) cout << "\tLeft " << Form("%-15s",name.Data()) << " = " << Form("%12.6f",w->var(name)->getVal()) << " constant" << endl;
 			continue;
 		}
 		if ( w->var(name) ) {
 			w->var(name)->setVal(val);
-			if (m_arg->debug) cout << "\tSet  " << Form("%-15s",name.Data()) << " = " << Form("%12.6f",w->var(name)->getVal()) << endl;
+      w->var(name)->setError(errSym);
+			if (m_arg->debug) cout << "\tSet  " << Form("%-15s",name.Data()) << " = " << Form("%12.6f",w->var(name)->getVal()) << " +/- " << Form("%-12.6f",w->var(name)->getError()) << endl;
 		}
 	}
 }

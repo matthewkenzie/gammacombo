@@ -120,6 +120,7 @@ class OptParser
 		float           scanrangeyMin;
 		float           scanrangeyMax;
 		bool    smooth2d;
+    bool            throwToy;
 		vector<TString> title;
 		bool            usage;
 		vector<TString> var;
