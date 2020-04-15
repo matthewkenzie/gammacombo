@@ -1,5 +1,5 @@
-FROM rootproject/root
+FROM rootproject/root-ubuntu16
 
-RUN yum -y install boost
-
-RUN echo ${BOOST_ROOT}
+RUN sudo apt-get update && sudo apt-get install -y software-properties-common
+RUN sudo add-apt-repository universe
+RUN sudo apt-get install -y libboost-all-dev
